@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#151515">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Flip 7">
+  <title>Flip 7 Scorekeeper</title>
+  <style>
+
+:root {
+  --bg: #0e0f10;
+  --panel: #191b1e;
+  --panel-2: #22252a;
+  --text: #f7f7f4;
+  --muted: #a9adb5;
+  --border: #343840;
+  --accent: #f1c84b;
+  --accent-text: #171717;
+  --danger: #9b3d43;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.app-shell { width: min(100%, 760px); margin: 0 auto; padding: 18px 14px 40px; }
+.topbar, .section-heading, .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.topbar { padding: 8px 2px 14px; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.1rem; }
+h3 { font-size: 1rem; }
+.eyebrow { color: var(--muted); font-size: .72rem; letter-spacing: .12em; margin-bottom: 4px; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 14px; }
+.badge { background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; padding: 7px 10px; font-size: .82rem; }
+.add-player { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+label span { display: block; margin-bottom: 6px; color: var(--muted); font-size: .85rem; }
+input, select { width: 100%; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+button { border-radius: 12px; border: 1px solid transparent; padding: 12px 15px; font-weight: 700; }
+.primary { background: var(--accent); color: var(--accent-text); }
+.secondary { background: var(--panel-2); color: var(--text); border-color: var(--border); }
+.danger { background: transparent; color: #ffb4b8; border-color: var(--danger); }
+.small { padding: 8px 10px; font-size: .85rem; }
+.message, .help { color: var(--muted); font-size: .86rem; margin-top: 9px; }
+.empty { text-align: center; padding: 30px 10px; color: var(--muted); }
+.empty h2 { color: var(--text); margin: 10px 0 4px; }
+.logo-mark { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; margin: auto; background: var(--accent); color: var(--accent-text); font-size: 1.5rem; font-weight: 900; }
+.hidden { display: none !important; }
+.scoreboard { display: grid; gap: 9px; }
+.player-row { display: grid; grid-template-columns: 36px 1fr auto auto; gap: 10px; align-items: center; padding: 11px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; }
+.rank { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--panel); }
+.player-name { font-weight: 800; }
+.player-status { color: var(--muted); font-size: .8rem; margin-top: 2px; }
+.total { text-align: right; font-size: 1.5rem; font-weight: 900; }
+.remove { background: transparent; color: var(--muted); border-color: var(--border); padding: 7px 9px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
+.stats div { padding: 10px; background: var(--panel-2); border-radius: 12px; text-align: center; }
+.stats span { display: block; color: var(--muted); font-size: .72rem; }
+.stats strong { display: block; margin-top: 4px; font-size: 1.1rem; }
+.callout { margin-top: 12px; padding: 11px; border-radius: 12px; background: rgba(241,200,75,.13); border: 1px solid rgba(241,200,75,.35); }
+.subsection { margin-top: 20px; }
+.subsection p { color: var(--muted); font-size: .82rem; margin-top: 3px; }
+.number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 11px; }
+.modifier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 11px; }
+.card-btn { min-height: 50px; background: var(--panel-2); color: var(--text); border-color: var(--border); }
+.card-btn.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.toggles label { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.toggles input { width: auto; margin-right: 8px; }
+.manual { display: block; margin-top: 12px; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.actions.three { grid-template-columns: 1fr 1fr 1fr; margin-top: 0; }
+.photo-preview { width: 100%; max-height: 330px; object-fit: contain; margin-top: 12px; border-radius: 12px; background: var(--panel-2); }
+.round-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-top: 10px; }
+.round-scores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-top: 8px; color: var(--muted); font-size: .85rem; }
+dialog { border: 1px solid var(--border); border-radius: 18px; background: var(--panel); color: var(--text); width: min(92vw, 420px); }
+dialog::backdrop { background: rgba(0,0,0,.75); }
+.dialog-body { text-align: center; padding: 20px; }
+.dialog-body button { width: 100%; margin-top: 18px; }
+.trophy { font-size: 2.5rem; margin-bottom: 8px; }
+@media (max-width: 520px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .actions.three { grid-template-columns: 1fr; }
+  .section-heading { align-items: flex-start; }
+}
+
+</style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FIRST TO 200</p>
+        <h1>Flip 7 Scorekeeper</h1>
+      </div>
+      <span id="roundBadge" class="badge">Round 1</span>
+    </header>
+
+    <section class="panel">
+      <div class="add-player">
+        <label>
+          <span>Player name</span>
+          <input id="playerName" maxlength="28" placeholder="Enter a name" autocomplete="off">
+        </label>
+        <button id="addPlayer" class="primary">Add</button>
+      </div>
+      <p id="message" class="message" aria-live="polite"></p>
+    </section>
+
+    <section id="scoreboardPanel" class="panel">
+      <div id="emptyState" class="empty">
+        <div class="logo-mark">7</div>
+        <h2>Add your players</h2>
+        <p>There is no player limit.</p>
+      </div>
+      <div id="scoreboard" class="scoreboard hidden"></div>
+    </section>
+
+    <section id="scoringPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">SCORE THIS ROUND</p>
+          <h2 id="activePlayerTitle">Select a player</h2>
+        </div>
+        <select id="activePlayer"></select>
+      </div>
+
+      <div class="stats">
+        <div><span>Numbers</span><strong id="numberTotal">0</strong></div>
+        <div><span>Modifiers</span><strong id="modifierTotal">0</strong></div>
+        <div><span>Unique</span><strong id="uniqueCount">0 / 7</strong></div>
+        <div><span>Round</span><strong id="roundTotal">0</strong></div>
+      </div>
+
+      <div id="flip7Callout" class="callout hidden"><strong>Flip 7!</strong> +15 bonus applied.</div>
+
+      <div class="subsection">
+        <div class="row-between">
+          <div>
+            <h3>Number cards</h3>
+            <p>Tap each unique number card collected.</p>
+          </div>
+          <button id="clearCards" class="secondary small">Clear</button>
+        </div>
+        <div id="numberCards" class="number-grid"></div>
+      </div>
+
+      <div class="subsection">
+        <h3>Modifier cards</h3>
+        <p>×2 applies before additive modifiers.</p>
+        <div id="modifierCards" class="modifier-grid"></div>
+      </div>
+
+      <div class="toggles">
+        <label><input id="busted" type="checkbox"> Player busted</label>
+        <label><input id="manualMode" type="checkbox"> Manual score</label>
+      </div>
+
+      <label id="manualWrap" class="manual hidden">
+        <span>Manual round score</span>
+        <input id="manualScore" type="number" min="0" inputmode="numeric" value="0">
+      </label>
+
+      <div class="actions">
+        <button id="saveScore" class="primary">Save player score</button>
+        <button id="nextPlayer" class="secondary">Next player</button>
+      </div>
+    </section>
+
+    <section id="photoPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OPTIONAL PHOTO TOOL</p>
+          <h2>Photograph the cards</h2>
+        </div>
+        <span class="badge">Manual review</span>
+      </div>
+      <p class="help">Take a clear overhead photo, then use it as a reference while selecting the cards above. Automatic AI recognition is intentionally not enabled in this free version.</p>
+      <input id="photoInput" type="file" accept="image/*" capture="environment">
+      <img id="photoPreview" class="photo-preview hidden" alt="Selected Flip 7 cards">
+    </section>
+
+    <section id="roundControls" class="panel hidden">
+      <div class="actions three">
+        <button id="finishRound" class="primary">Finish round</button>
+        <button id="undoRound" class="secondary">Undo round</button>
+        <button id="newGame" class="danger">New game</button>
+      </div>
+    </section>
+
+    <section id="historyPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">COMPLETED ROUNDS</p>
+          <h2>Game history</h2>
+        </div>
+      </div>
+      <div id="history"></div>
+    </section>
+  </main>
+
+  <dialog id="winnerDialog">
+    <div class="dialog-body">
+      <div class="trophy">🏆</div>
+      <p class="eyebrow">GAME WINNER</p>
+      <h2 id="winnerName"></h2>
+      <p id="winnerScore"></p>
+      <button id="closeWinner" class="primary">Keep playing</button>
+    </div>
+  </dialog>
+
+  <script>
+
+const STORAGE_KEY = "flip7-scorekeeper-v1";
+const state = loadState() || {
+  players: [],
+  round: 1,
+  history: [],
+  activePlayerId: null,
+  selectedNumbers: [],
+  selectedModifiers: [],
+  busted: false,
+  manualMode: false,
+  manualScore: 0
+};
+
+const $ = id => document.getElementById(id);
+const modifiers = [
+  { id: "x2", label: "×2", value: 0 },
+  { id: "p2", label: "+2", value: 2 },
+  { id: "p4", label: "+4", value: 4 },
+  { id: "p6", label: "+6", value: 6 },
+  { id: "p8", label: "+8", value: 8 },
+  { id: "p10", label: "+10", value: 10 }
+];
+
+function uid() {
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function activePlayer() {
+  return state.players.find(p => p.id === state.activePlayerId);
+}
+
+function calculateScore() {
+  if (state.busted) return 0;
+  if (state.manualMode) return Math.max(0, Number(state.manualScore) || 0);
+  const numberSum = state.selectedNumbers.reduce((a, b) => a + b, 0);
+  const withMultiplier = state.selectedModifiers.includes("x2") ? numberSum * 2 : numberSum;
+  const additions = modifiers
+    .filter(m => m.id !== "x2" && state.selectedModifiers.includes(m.id))
+    .reduce((sum, m) => sum + m.value, 0);
+  const flip7Bonus = state.selectedNumbers.length >= 7 ? 15 : 0;
+  return withMultiplier + additions + flip7Bonus;
+}
+
+function resetEntry() {
+  state.selectedNumbers = [];
+  state.selectedModifiers = [];
+  state.busted = false;
+  state.manualMode = false;
+  state.manualScore = 0;
+  $("busted").checked = false;
+  $("manualMode").checked = false;
+  $("manualScore").value = 0;
+  $("manualWrap").classList.add("hidden");
+}
+
+function addPlayer() {
+  const name = $("playerName").value.trim();
+  if (!name) return showMessage("Enter a player name.");
+  const player = { id: uid(), name, total: 0, pendingScore: null };
+  state.players.push(player);
+  if (!state.activePlayerId) state.activePlayerId = player.id;
+  $("playerName").value = "";
+  showMessage(`${name} added.`);
+  persist();
+  render();
+}
+
+function showMessage(text) {
+  $("message").textContent = text;
+}
+
+function selectPlayer(id) {
+  state.activePlayerId = id;
+  resetEntry();
+  persist();
+  render();
+}
+
+function removePlayer(id) {
+  state.players = state.players.filter(p => p.id !== id);
+  if (state.activePlayerId === id) state.activePlayerId = state.players[0]?.id || null;
+  persist();
+  render();
+}
+
+function saveScore() {
+  const player = activePlayer();
+  if (!player) return;
+  player.pendingScore = calculateScore();
+  const next = state.players.find(p => p.pendingScore === null);
+  if (next) state.activePlayerId = next.id;
+  resetEntry();
+  persist();
+  render();
+}
+
+function finishRound() {
+  const missing = state.players.filter(p => p.pendingScore === null);
+  if (missing.length) return showMessage(`Still waiting for ${missing.map(p => p.name).join(", ")}.`);
+  const record = {
+    number: state.round,
+    scores: state.players.map(p => ({ id: p.id, name: p.name, score: p.pendingScore }))
+  };
+  state.history.push(record);
+  state.players.forEach(p => {
+    p.total += p.pendingScore;
+    p.pendingScore = null;
+  });
+  const winner = [...state.players].sort((a, b) => b.total - a.total)[0];
+  state.round += 1;
+  state.activePlayerId = state.players[0]?.id || null;
+  resetEntry();
+  persist();
+  render();
+  if (winner?.total >= 200) {
+    $("winnerName").textContent = winner.name;
+    $("winnerScore").textContent = `${winner.total} points`;
+    $("winnerDialog").showModal();
+  }
+}
+
+function undoRound() {
+  const last = state.history.pop();
+  if (!last) return;
+  last.scores.forEach(s => {
+    const p = state.players.find(x => x.id === s.id);
+    if (p) p.total = Math.max(0, p.total - s.score);
+  });
+  state.round = Math.max(1, state.round - 1);
+  persist();
+  render();
+}
+
+function newGame() {
+  if (!confirm("Clear all players, scores, and history?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function renderCardButtons() {
+  $("numberCards").innerHTML = Array.from({ length: 13 }, (_, i) => `
+    <button class="card-btn ${state.selectedNumbers.includes(i) ? "selected" : ""}" data-number="${i}">${i}</button>
+  `).join("");
+  $("modifierCards").innerHTML = modifiers.map(m => `
+    <button class="card-btn ${state.selectedModifiers.includes(m.id) ? "selected" : ""}" data-mod="${m.id}">${m.label}</button>
+  `).join("");
+
+  document.querySelectorAll("[data-number]").forEach(btn => btn.addEventListener("click", () => {
+    const value = Number(btn.dataset.number);
+    state.selectedNumbers = state.selectedNumbers.includes(value)
+      ? state.selectedNumbers.filter(n => n !== value)
+      : [...state.selectedNumbers, value];
+    persist();
+    render();
+  }));
+
+  document.querySelectorAll("[data-mod]").forEach(btn => btn.addEventListener("click", () => {
+    const id = btn.dataset.mod;
+    state.selectedModifiers = state.selectedModifiers.includes(id)
+      ? state.selectedModifiers.filter(m => m !== id)
+      : [...state.selectedModifiers, id];
+    persist();
+    render();
+  }));
+}
+
+function render() {
+  const hasPlayers = state.players.length > 0;
+  $("roundBadge").textContent = `Round ${state.round}`;
+  $("emptyState").classList.toggle("hidden", hasPlayers);
+  $("scoreboard").classList.toggle("hidden", !hasPlayers);
+  ["scoringPanel", "photoPanel", "roundControls"].forEach(id => $(id).classList.toggle("hidden", !hasPlayers));
+  $("historyPanel").classList.toggle("hidden", state.history.length === 0);
+
+  if (hasPlayers) {
+    const sorted = [...state.players].sort((a, b) => b.total - a.total);
+    $("scoreboard").innerHTML = sorted.map((p, index) => `
+      <div class="player-row">
+        <div class="rank">${index + 1}</div>
+        <button class="secondary" data-player="${p.id}">
+          <div class="player-name">${escapeHtml(p.name)}</div>
+          <div class="player-status">${p.pendingScore === null ? "Not scored" : `Round: ${p.pendingScore}`}</div>
+        </button>
+        <div class="total">${p.total}</div>
+        <button class="remove" data-remove="${p.id}">×</button>
+      </div>
+    `).join("");
+
+    $("activePlayer").innerHTML = state.players.map(p =>
+      `<option value="${p.id}" ${p.id === state.activePlayerId ? "selected" : ""}>${escapeHtml(p.name)}</option>`
+    ).join("");
+
+    document.querySelectorAll("[data-player]").forEach(b => b.addEventListener("click", () => selectPlayer(b.dataset.player)));
+    document.querySelectorAll("[data-remove]").forEach(b => b.addEventListener("click", () => removePlayer(b.dataset.remove)));
+  }
+
+  $("activePlayerTitle").textContent = activePlayer() ? `Scoring ${activePlayer().name}` : "Select a player";
+  const numberSum = state.selectedNumbers.reduce((a, b) => a + b, 0);
+  $("numberTotal").textContent = state.selectedModifiers.includes("x2") ? `${numberSum} × 2` : numberSum;
+  $("modifierTotal").textContent = modifiers
+    .filter(m => m.id !== "x2" && state.selectedModifiers.includes(m.id))
+    .reduce((sum, m) => sum + m.value, 0);
+  $("uniqueCount").textContent = `${state.selectedNumbers.length} / 7`;
+  $("roundTotal").textContent = calculateScore();
+  $("flip7Callout").classList.toggle("hidden", state.selectedNumbers.length < 7 || state.busted || state.manualMode);
+  $("undoRound").disabled = state.history.length === 0;
+
+  renderCardButtons();
+
+  $("history").innerHTML = [...state.history].reverse().map(r => `
+    <div class="round-card">
+      <strong>Round ${r.number}</strong>
+      <div class="round-scores">${r.scores.map(s => `<span>${escapeHtml(s.name)}: +${s.score}</span>`).join("")}</div>
+    </div>
+  `).join("");
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[c]));
+}
+
+$("addPlayer").addEventListener("click", addPlayer);
+$("playerName").addEventListener("keydown", e => { if (e.key === "Enter") addPlayer(); });
+$("activePlayer").addEventListener("change", e => selectPlayer(e.target.value));
+$("clearCards").addEventListener("click", () => { resetEntry(); persist(); render(); });
+$("saveScore").addEventListener("click", saveScore);
+$("nextPlayer").addEventListener("click", () => {
+  const current = state.players.findIndex(p => p.id === state.activePlayerId);
+  const next = state.players[(current + 1) % state.players.length];
+  if (next) selectPlayer(next.id);
+});
+$("finishRound").addEventListener("click", finishRound);
+$("undoRound").addEventListener("click", undoRound);
+$("newGame").addEventListener("click", newGame);
+$("closeWinner").addEventListener("click", () => $("winnerDialog").close());
+
+$("busted").addEventListener("change", e => { state.busted = e.target.checked; persist(); render(); });
+$("manualMode").addEventListener("change", e => {
+  state.manualMode = e.target.checked;
+  $("manualWrap").classList.toggle("hidden", !state.manualMode);
+  persist();
+  render();
+});
+$("manualScore").addEventListener("input", e => { state.manualScore = e.target.value; persist(); render(); });
+
+$("photoInput").addEventListener("change", e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    $("photoPreview").src = reader.result;
+    $("photoPreview").classList.remove("hidden");
+  };
+  reader.readAsDataURL(file);
+});
+
+
+$("busted").checked = state.busted;
+$("manualMode").checked = state.manualMode;
+$("manualScore").value = state.manualScore;
+$("manualWrap").classList.toggle("hidden", !state.manualMode);
+render();
+
+</script>
+</body>
+</html>
