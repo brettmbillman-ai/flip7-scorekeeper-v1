@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#151515">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Flip 7">
+  <title>Flip 7 Scorekeeper</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FIRST TO 200</p>
+        <h1>Flip 7 Scorekeeper</h1>
+      </div>
+      <span id="roundBadge" class="badge">Round 1</span>
+    </header>
+
+    <section class="panel">
+      <div class="add-player">
+        <label>
+          <span>Player name</span>
+          <input id="playerName" maxlength="28" placeholder="Enter a name" autocomplete="off">
+        </label>
+        <button id="addPlayer" class="primary">Add</button>
+      </div>
+      <p id="message" class="message" aria-live="polite"></p>
+    </section>
+
+    <section id="scoreboardPanel" class="panel">
+      <div id="emptyState" class="empty">
+        <div class="logo-mark">7</div>
+        <h2>Add your players</h2>
+        <p>There is no player limit.</p>
+      </div>
+      <div id="scoreboard" class="scoreboard hidden"></div>
+    </section>
+
+    <section id="scoringPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">SCORE THIS ROUND</p>
+          <h2 id="activePlayerTitle">Select a player</h2>
+        </div>
+        <select id="activePlayer"></select>
+      </div>
+
+      <div class="stats">
+        <div><span>Numbers</span><strong id="numberTotal">0</strong></div>
+        <div><span>Modifiers</span><strong id="modifierTotal">0</strong></div>
+        <div><span>Unique</span><strong id="uniqueCount">0 / 7</strong></div>
+        <div><span>Round</span><strong id="roundTotal">0</strong></div>
+      </div>
+
+      <div id="flip7Callout" class="callout hidden"><strong>Flip 7!</strong> +15 bonus applied.</div>
+
+      <div class="subsection">
+        <div class="row-between">
+          <div>
+            <h3>Number cards</h3>
+            <p>Tap each unique number card collected.</p>
+          </div>
+          <button id="clearCards" class="secondary small">Clear</button>
+        </div>
+        <div id="numberCards" class="number-grid"></div>
+      </div>
+
+      <div class="subsection">
+        <h3>Modifier cards</h3>
+        <p>×2 applies before additive modifiers.</p>
+        <div id="modifierCards" class="modifier-grid"></div>
+      </div>
+
+      <div class="toggles">
+        <label><input id="busted" type="checkbox"> Player busted</label>
+        <label><input id="manualMode" type="checkbox"> Manual score</label>
+      </div>
+
+      <label id="manualWrap" class="manual hidden">
+        <span>Manual round score</span>
+        <input id="manualScore" type="number" min="0" inputmode="numeric" value="0">
+      </label>
+
+      <div class="actions">
+        <button id="saveScore" class="primary">Save player score</button>
+        <button id="nextPlayer" class="secondary">Next player</button>
+      </div>
+    </section>
+
+    <section id="photoPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OPTIONAL PHOTO TOOL</p>
+          <h2>Photograph the cards</h2>
+        </div>
+        <span class="badge">Manual review</span>
+      </div>
+      <p class="help">Take a clear overhead photo, then use it as a reference while selecting the cards above. Automatic AI recognition is intentionally not enabled in this free version.</p>
+      <input id="photoInput" type="file" accept="image/*" capture="environment">
+      <img id="photoPreview" class="photo-preview hidden" alt="Selected Flip 7 cards">
+    </section>
+
+    <section id="roundControls" class="panel hidden">
+      <div class="actions three">
+        <button id="finishRound" class="primary">Finish round</button>
+        <button id="undoRound" class="secondary">Undo round</button>
+        <button id="newGame" class="danger">New game</button>
+      </div>
+    </section>
+
+    <section id="historyPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">COMPLETED ROUNDS</p>
+          <h2>Game history</h2>
+        </div>
+      </div>
+      <div id="history"></div>
+    </section>
+  </main>
+
+  <dialog id="winnerDialog">
+    <div class="dialog-body">
+      <div class="trophy">🏆</div>
+      <p class="eyebrow">GAME WINNER</p>
+      <h2 id="winnerName"></h2>
+      <p id="winnerScore"></p>
+      <button id="closeWinner" class="primary">Keep playing</button>
+    </div>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
