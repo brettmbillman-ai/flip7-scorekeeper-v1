@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16c8c7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Flip 7">
+  <title>Flip 7 Scorekeeper · v1.2</title>
+  <style>
+
+:root {
+  --aqua: #16c8c7;
+  --aqua-dark: #079b9d;
+  --cream: #fff8df;
+  --cream-deep: #f4e7b9;
+  --purple: #35245c;
+  --purple-soft: #59427f;
+  --yellow: #ffd83d;
+  --orange: #ff8a3d;
+  --red: #ef4c55;
+  --blue: #2d84d8;
+  --green: #36a86b;
+  --ink: #2c204b;
+  --muted: #73698a;
+  --white: #ffffff;
+  --shadow: 0 7px 0 rgba(53, 36, 92, 0.22);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,255,255,.18) 0 7%, transparent 7.5%),
+    radial-gradient(circle at 90% 18%, rgba(255,216,61,.30) 0 5%, transparent 5.5%),
+    linear-gradient(145deg, #21d4cf 0%, var(--aqua) 45%, #0eaaa9 100%);
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, -apple-system, sans-serif;
+}
+
+button, input, select { font: inherit; }
+button { cursor: pointer; touch-action: manipulation; }
+
+.app-shell {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 16px 13px 42px;
+}
+
+.topbar,
+.section-heading,
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.topbar {
+  padding: 8px 4px 17px;
+  color: var(--white);
+}
+
+h1, h2, h3, p { margin: 0; }
+
+h1 {
+  font-size: clamp(1.7rem, 7vw, 2.35rem);
+  line-height: .95;
+  letter-spacing: -.035em;
+  color: var(--yellow);
+  text-transform: uppercase;
+  text-shadow:
+    -2px -2px 0 var(--purple),
+     2px -2px 0 var(--purple),
+    -2px  2px 0 var(--purple),
+     2px  2px 0 var(--purple),
+     0 5px 0 rgba(53,36,92,.28);
+}
+
+h2 { font-size: 1.15rem; }
+h3 { font-size: 1rem; }
+
+.eyebrow {
+  color: inherit;
+  opacity: .82;
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .13em;
+  margin-bottom: 5px;
+}
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  background: var(--cream);
+  border: 3px solid var(--purple);
+  border-radius: 22px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  right: -35px;
+  top: -35px;
+  border-radius: 50%;
+  background: rgba(255,216,61,.24);
+  pointer-events: none;
+}
+
+.badge {
+  background: var(--yellow);
+  color: var(--purple);
+  border: 3px solid var(--purple);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: .8rem;
+  font-weight: 900;
+  box-shadow: 0 4px 0 rgba(53,36,92,.22);
+  white-space: nowrap;
+}
+
+.add-player {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+label span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--purple-soft);
+  font-size: .84rem;
+  font-weight: 800;
+}
+
+input, select {
+  width: 100%;
+  min-height: 46px;
+  background: var(--white);
+  color: var(--ink);
+  border: 3px solid var(--purple);
+  border-radius: 13px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+input:focus, select:focus {
+  box-shadow: 0 0 0 4px rgba(255,216,61,.55);
+}
+
+button {
+  min-height: 46px;
+  border-radius: 13px;
+  border: 3px solid var(--purple);
+  padding: 10px 14px;
+  font-weight: 900;
+  transition: transform .08s ease, box-shadow .08s ease, filter .15s ease;
+}
+
+button:active {
+  transform: translateY(3px);
+  box-shadow: none !important;
+}
+
+.primary {
+  background: var(--yellow);
+  color: var(--purple);
+  box-shadow: 0 5px 0 var(--purple);
+}
+
+.secondary {
+  background: var(--white);
+  color: var(--purple);
+  border-color: var(--purple);
+  box-shadow: 0 4px 0 rgba(53,36,92,.28);
+}
+
+.danger {
+  background: var(--red);
+  color: var(--white);
+  border-color: var(--purple);
+  box-shadow: 0 4px 0 var(--purple);
+}
+
+.small {
+  min-height: 38px;
+  padding: 6px 10px;
+  font-size: .82rem;
+}
+
+.message, .help {
+  color: var(--muted);
+  font-size: .85rem;
+  margin-top: 10px;
+}
+
+.empty {
+  text-align: center;
+  padding: 29px 10px;
+  color: var(--muted);
+}
+
+.empty h2 {
+  color: var(--purple);
+  margin: 11px 0 4px;
+}
+
+.logo-mark {
+  width: 62px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  margin: auto;
+  border-radius: 12px;
+  background: var(--yellow);
+  color: var(--purple);
+  border: 4px solid var(--purple);
+  box-shadow: 7px 7px 0 var(--orange);
+  font-size: 2.25rem;
+  font-weight: 1000;
+  transform: rotate(-4deg);
+}
+
+.hidden { display: none !important; }
+
+.scoreboard {
+  display: grid;
+  gap: 10px;
+}
+
+.player-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto auto;
+  gap: 9px;
+  align-items: center;
+  padding: 10px;
+  background: var(--white);
+  border: 3px solid var(--purple);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 rgba(53,36,92,.18);
+}
+
+.player-row:first-child {
+  background: linear-gradient(135deg, #fffde9, #fff1a8);
+}
+
+.rank {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--white);
+  background: var(--purple);
+  border: 2px solid var(--purple);
+  font-weight: 900;
+}
+
+.player-row:first-child .rank {
+  color: var(--purple);
+  background: var(--yellow);
+}
+
+.player-row .secondary {
+  min-width: 0;
+  text-align: left;
+  padding: 7px 8px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.player-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--purple);
+  font-weight: 1000;
+}
+
+.player-status {
+  color: var(--muted);
+  font-size: .78rem;
+  margin-top: 2px;
+}
+
+.total {
+  min-width: 48px;
+  text-align: right;
+  color: var(--purple);
+  font-size: 1.55rem;
+  font-weight: 1000;
+}
+
+.remove {
+  min-height: 34px;
+  background: var(--red);
+  color: var(--white);
+  border: 2px solid var(--purple);
+  padding: 4px 8px;
+  box-shadow: 0 3px 0 var(--purple);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.stats div {
+  padding: 10px 6px;
+  background: var(--white);
+  border: 2px solid var(--purple);
+  border-radius: 13px;
+  text-align: center;
+}
+
+.stats div:nth-child(4) {
+  background: var(--yellow);
+}
+
+.stats span {
+  display: block;
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stats strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--purple);
+  font-size: 1.15rem;
+}
+
+.callout {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 13px;
+  color: var(--purple);
+  background: var(--yellow);
+  border: 3px solid var(--purple);
+  box-shadow: 0 4px 0 var(--orange);
+  animation: pop .25s ease-out;
+}
+
+@keyframes pop {
+  from { transform: scale(.96); opacity: .55; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.subsection { margin-top: 21px; }
+
+.subsection p {
+  color: var(--muted);
+  font-size: .81rem;
+  margin-top: 3px;
+}
+
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.modifier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.card-btn {
+  position: relative;
+  min-height: 62px;
+  background: var(--white);
+  color: var(--purple);
+  border: 3px solid var(--purple);
+  border-radius: 11px;
+  box-shadow: 0 5px 0 var(--purple);
+  font-size: 1.15rem;
+}
+
+.card-btn::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--aqua);
+}
+
+.card-btn:nth-child(4n+2)::before { background: var(--red); }
+.card-btn:nth-child(4n+3)::before { background: var(--yellow); }
+.card-btn:nth-child(4n+4)::before { background: var(--blue); }
+
+.card-btn.selected {
+  background: var(--yellow);
+  color: var(--purple);
+  border-color: var(--purple);
+  transform: translateY(3px) rotate(-1deg);
+  box-shadow: 0 2px 0 var(--purple);
+}
+
+.toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 19px;
+}
+
+.toggles label {
+  background: var(--white);
+  border: 3px solid var(--purple);
+  border-radius: 13px;
+  padding: 12px;
+  color: var(--purple);
+  font-weight: 850;
+}
+
+.toggles input {
+  width: auto;
+  min-height: auto;
+  margin-right: 7px;
+  accent-color: var(--purple);
+}
+
+.manual {
+  display: block;
+  margin-top: 12px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.actions.three {
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 0;
+}
+
+.photo-preview {
+  width: 100%;
+  max-height: 330px;
+  object-fit: contain;
+  margin-top: 12px;
+  border-radius: 13px;
+  background: var(--white);
+  border: 3px solid var(--purple);
+}
+
+.round-card {
+  background: var(--white);
+  border: 3px solid var(--purple);
+  border-radius: 14px;
+  padding: 12px;
+  margin-top: 10px;
+  box-shadow: 0 4px 0 rgba(53,36,92,.18);
+}
+
+.round-scores {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: .84rem;
+}
+
+dialog {
+  border: 4px solid var(--purple);
+  border-radius: 22px;
+  background: var(--cream);
+  color: var(--purple);
+  width: min(92vw, 420px);
+  box-shadow: 0 10px 0 rgba(53,36,92,.35);
+}
+
+dialog::backdrop {
+  background: rgba(31,18,59,.78);
+}
+
+.dialog-body {
+  text-align: center;
+  padding: 22px;
+}
+
+.dialog-body button {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.trophy {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 520px) {
+  .app-shell { padding-left: 10px; padding-right: 10px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .actions.three { grid-template-columns: 1fr; }
+  .section-heading { align-items: flex-start; }
+  .number-grid { gap: 7px; }
+  .card-btn { min-height: 59px; }
+}
+
+
+/* Version 1.2 — safer round flow */
+button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+  filter: saturate(.55);
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.round-control-panel {
+  background: linear-gradient(135deg, var(--cream) 0%, #fff3b8 100%);
+}
+
+.round-control-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.finish-round-btn {
+  width: 100%;
+  margin-top: 14px;
+  min-height: 56px;
+  font-size: 1.08rem;
+}
+
+.finish-round-btn.ready {
+  animation: readyPulse 1.35s ease-in-out infinite;
+}
+
+@keyframes readyPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 5px 0 var(--purple); }
+  50% { transform: scale(1.018); box-shadow: 0 7px 0 var(--purple); }
+}
+
+.round-secondary-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 11px;
+}
+
+.locked-row {
+  background: #effaf3 !important;
+  border-color: var(--green) !important;
+}
+
+.locked-row .rank {
+  background: var(--green);
+  border-color: var(--purple);
+}
+
+.locked-row .player-status {
+  color: #277a50;
+  font-weight: 900;
+}
+
+.locked-row .secondary {
+  cursor: pointer;
+}
+
+.lock-mark {
+  display: inline-block;
+  margin-right: 3px;
+}
+
+.current-row {
+  outline: 4px solid rgba(255,216,61,.75);
+  outline-offset: 1px;
+}
+
+.all-scored {
+  padding: 18px 12px;
+  text-align: center;
+  border: 3px dashed var(--green);
+  border-radius: 14px;
+  background: #effaf3;
+  color: #277a50;
+  font-weight: 900;
+}
+
+@media (max-width: 520px) {
+  .round-secondary-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+</style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FIRST TO 200</p>
+        <h1>Flip 7<br>Scorekeeper</h1>
+      </div>
+      <span id="roundBadge" class="badge">Round 1</span>
+    </header>
+
+    <section class="panel">
+      <div class="add-player">
+        <label>
+          <span>Player name</span>
+          <input id="playerName" maxlength="28" placeholder="Enter a name" autocomplete="off">
+        </label>
+        <button id="addPlayer" class="primary">Add</button>
+      </div>
+      <p id="message" class="message" aria-live="polite"></p>
+    </section>
+
+    <section id="scoreboardPanel" class="panel">
+      <div id="emptyState" class="empty">
+        <div class="logo-mark">7</div>
+        <h2>Add your players</h2>
+        <p>Bring everyone to the table. There is no player limit.</p>
+      </div>
+      <div id="scoreboard" class="scoreboard hidden"></div>
+    </section>
+
+<section id="roundControls" class="panel hidden round-control-panel">
+      <div class="round-control-top">
+        <div>
+          <p class="eyebrow">ROUND PROGRESS</p>
+          <h2 id="roundProgressTitle">Score everyone</h2>
+          <p id="roundProgressText" class="help">Waiting for players...</p>
+        </div>
+        <span id="remainingBadge" class="badge">0 left</span>
+      </div>
+      <button id="finishRound" class="primary finish-round-btn" disabled>Finish round</button>
+      <div class="round-secondary-actions">
+        <button id="undoRound" class="secondary">Undo last round</button>
+        <button id="newGame" class="danger">New game</button>
+      </div>
+    </section>
+
+    <section id="scoringPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">SCORE THIS ROUND</p>
+          <h2 id="activePlayerTitle">Select a player</h2>
+        </div>
+        <select id="activePlayer"></select>
+      </div>
+
+      <div class="stats">
+        <div><span>Numbers</span><strong id="numberTotal">0</strong></div>
+        <div><span>Modifiers</span><strong id="modifierTotal">0</strong></div>
+        <div><span>Unique</span><strong id="uniqueCount">0 / 7</strong></div>
+        <div><span>Round</span><strong id="roundTotal">0</strong></div>
+      </div>
+
+      <div id="flip7Callout" class="callout hidden"><strong>Flip 7!</strong> +15 bonus applied.</div>
+
+      <div class="subsection">
+        <div class="row-between">
+          <div>
+            <h3>Number cards</h3>
+            <p>Tap each unique number card collected.</p>
+          </div>
+          <button id="clearCards" class="secondary small">Clear</button>
+        </div>
+        <div id="numberCards" class="number-grid"></div>
+      </div>
+
+      <div class="subsection">
+        <h3>Modifier cards</h3>
+        <p>×2 applies before additive modifiers.</p>
+        <div id="modifierCards" class="modifier-grid"></div>
+      </div>
+
+      <div class="toggles">
+        <label><input id="busted" type="checkbox"> Player busted</label>
+        <label><input id="manualMode" type="checkbox"> Manual score</label>
+      </div>
+
+      <label id="manualWrap" class="manual hidden">
+        <span>Manual round score</span>
+        <input id="manualScore" type="number" min="0" inputmode="numeric" value="0">
+      </label>
+
+      <div class="actions">
+        <button id="saveScore" class="primary">Save player score</button>
+        <button id="nextPlayer" class="secondary">Next player</button>
+      </div>
+    </section>
+
+    <section id="historyPanel" class="panel hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">COMPLETED ROUNDS</p>
+          <h2>Game history</h2>
+        </div>
+      </div>
+      <div id="history"></div>
+    </section>
+  </main>
+
+  <dialog id="winnerDialog">
+    <div class="dialog-body">
+      <div class="trophy">🏆</div>
+      <p class="eyebrow">GAME WINNER</p>
+      <h2 id="winnerName"></h2>
+      <p id="winnerScore"></p>
+      <button id="closeWinner" class="primary">Keep playing</button>
+    </div>
+  </dialog>
+
+  <script>
+
+const STORAGE_KEY = "flip7-scorekeeper-v1"; // compatible through v1.2
+const state = loadState() || {
+  players: [],
+  round: 1,
+  history: [],
+  activePlayerId: null,
+  selectedNumbers: [],
+  selectedModifiers: [],
+  busted: false,
+  manualMode: false,
+  manualScore: 0
+};
+
+const $ = id => document.getElementById(id);
+const modifiers = [
+  { id: "x2", label: "×2", value: 0 },
+  { id: "p2", label: "+2", value: 2 },
+  { id: "p4", label: "+4", value: 4 },
+  { id: "p6", label: "+6", value: 6 },
+  { id: "p8", label: "+8", value: 8 },
+  { id: "p10", label: "+10", value: 10 }
+];
+
+function uid() {
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function activePlayer() {
+  return state.players.find(p => p.id === state.activePlayerId);
+}
+
+function calculateScore() {
+  if (state.busted) return 0;
+  if (state.manualMode) return Math.max(0, Number(state.manualScore) || 0);
+  const numberSum = state.selectedNumbers.reduce((a, b) => a + b, 0);
+  const withMultiplier = state.selectedModifiers.includes("x2") ? numberSum * 2 : numberSum;
+  const additions = modifiers
+    .filter(m => m.id !== "x2" && state.selectedModifiers.includes(m.id))
+    .reduce((sum, m) => sum + m.value, 0);
+  const flip7Bonus = state.selectedNumbers.length >= 7 ? 15 : 0;
+  return withMultiplier + additions + flip7Bonus;
+}
+
+function resetEntry() {
+  state.selectedNumbers = [];
+  state.selectedModifiers = [];
+  state.busted = false;
+  state.manualMode = false;
+  state.manualScore = 0;
+  $("busted").checked = false;
+  $("manualMode").checked = false;
+  $("manualScore").value = 0;
+  $("manualWrap").classList.add("hidden");
+}
+
+function addPlayer() {
+  const name = $("playerName").value.trim();
+  if (!name) return showMessage("Enter a player name.");
+  const player = { id: uid(), name, total: 0, pendingScore: null };
+  state.players.push(player);
+  if (!state.activePlayerId) state.activePlayerId = player.id;
+  $("playerName").value = "";
+  showMessage(`${name} added.`);
+  persist();
+  render();
+}
+
+function showMessage(text) {
+  $("message").textContent = text;
+}
+
+function selectPlayer(id) {
+  const player = state.players.find(p => p.id === id);
+  if (!player || player.pendingScore !== null) return;
+  state.activePlayerId = id;
+  resetEntry();
+  persist();
+  render();
+}
+
+function removePlayer(id) {
+  state.players = state.players.filter(p => p.id !== id);
+  if (state.activePlayerId === id) state.activePlayerId = state.players[0]?.id || null;
+  persist();
+  render();
+}
+
+function saveScore() {
+  const player = activePlayer();
+  if (!player || player.pendingScore !== null) return;
+  player.pendingScore = calculateScore();
+
+  const next = state.players.find(p => p.pendingScore === null && p.id !== player.id);
+  state.activePlayerId = next ? next.id : null;
+
+  resetEntry();
+  showMessage(`${player.name}'s ${player.pendingScore} points are locked for this round.`);
+  persist();
+  render();
+}
+
+function unlockPlayer(id) {
+  const player = state.players.find(p => p.id === id);
+  if (!player || player.pendingScore === null) return;
+
+  const ok = confirm(`Unlock ${player.name}'s ${player.pendingScore}-point score so you can change it?`);
+  if (!ok) return;
+
+  player.pendingScore = null;
+  state.activePlayerId = player.id;
+  resetEntry();
+  showMessage(`${player.name} is unlocked. Enter the corrected score and save again.`);
+  persist();
+  render();
+
+  window.setTimeout(() => {
+    $("scoringPanel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+}
+
+function finishRound() {
+  const missing = state.players.filter(p => p.pendingScore === null);
+  if (missing.length) return showMessage(`Still waiting for ${missing.map(p => p.name).join(", ")}.`);
+  const record = {
+    number: state.round,
+    scores: state.players.map(p => ({ id: p.id, name: p.name, score: p.pendingScore }))
+  };
+  state.history.push(record);
+  state.players.forEach(p => {
+    p.total += p.pendingScore;
+    p.pendingScore = null;
+  });
+  const winner = [...state.players].sort((a, b) => b.total - a.total)[0];
+  state.round += 1;
+  state.activePlayerId = state.players[0]?.id || null;
+  resetEntry();
+  persist();
+  render();
+  if (winner?.total >= 200) {
+    $("winnerName").textContent = winner.name;
+    $("winnerScore").textContent = `${winner.total} points`;
+    $("winnerDialog").showModal();
+  }
+}
+
+function undoRound() {
+  const last = state.history.pop();
+  if (!last) return;
+  last.scores.forEach(s => {
+    const p = state.players.find(x => x.id === s.id);
+    if (p) p.total = Math.max(0, p.total - s.score);
+  });
+  state.round = Math.max(1, state.round - 1);
+  persist();
+  render();
+}
+
+function newGame() {
+  if (!confirm("Clear all players, scores, and history?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function renderCardButtons() {
+  $("numberCards").innerHTML = Array.from({ length: 13 }, (_, i) => `
+    <button class="card-btn ${state.selectedNumbers.includes(i) ? "selected" : ""}" data-number="${i}">${i}</button>
+  `).join("");
+  $("modifierCards").innerHTML = modifiers.map(m => `
+    <button class="card-btn ${state.selectedModifiers.includes(m.id) ? "selected" : ""}" data-mod="${m.id}">${m.label}</button>
+  `).join("");
+
+  document.querySelectorAll("[data-number]").forEach(btn => btn.addEventListener("click", () => {
+    const value = Number(btn.dataset.number);
+    state.selectedNumbers = state.selectedNumbers.includes(value)
+      ? state.selectedNumbers.filter(n => n !== value)
+      : [...state.selectedNumbers, value];
+    persist();
+    render();
+  }));
+
+  document.querySelectorAll("[data-mod]").forEach(btn => btn.addEventListener("click", () => {
+    const id = btn.dataset.mod;
+    state.selectedModifiers = state.selectedModifiers.includes(id)
+      ? state.selectedModifiers.filter(m => m !== id)
+      : [...state.selectedModifiers, id];
+    persist();
+    render();
+  }));
+}
+
+function render() {
+  const hasPlayers = state.players.length > 0;
+  const unscored = state.players.filter(p => p.pendingScore === null);
+  const allScored = hasPlayers && unscored.length === 0;
+
+  // Never leave the editor pointed at an already-locked player.
+  if (state.activePlayerId) {
+    const selected = state.players.find(p => p.id === state.activePlayerId);
+    if (!selected || selected.pendingScore !== null) state.activePlayerId = null;
+  }
+  if (!state.activePlayerId && unscored.length) {
+    state.activePlayerId = unscored[0].id;
+  }
+
+  $("roundBadge").textContent = `Round ${state.round}`;
+  $("emptyState").classList.toggle("hidden", hasPlayers);
+  $("scoreboard").classList.toggle("hidden", !hasPlayers);
+  $("roundControls").classList.toggle("hidden", !hasPlayers);
+  $("scoringPanel").classList.toggle("hidden", !hasPlayers || allScored);
+  $("historyPanel").classList.toggle("hidden", state.history.length === 0);
+
+  if (hasPlayers) {
+    const sorted = [...state.players].sort((a, b) => b.total - a.total);
+    $("scoreboard").innerHTML = sorted.map((p, index) => {
+      const locked = p.pendingScore !== null;
+      const current = p.id === state.activePlayerId;
+      return `
+        <div class="player-row ${locked ? "locked-row" : ""} ${current ? "current-row" : ""}">
+          <div class="rank">${locked ? "✓" : index + 1}</div>
+          <button class="secondary" data-player="${p.id}" data-locked="${locked}">
+            <div class="player-name">${escapeHtml(p.name)}</div>
+            <div class="player-status">${
+              locked
+                ? `<span class="lock-mark">🔒</span>${p.pendingScore} points locked — tap to edit`
+                : current
+                  ? "Currently scoring"
+                  : "Waiting to be scored"
+            }</div>
+          </button>
+          <div class="total">${p.total}</div>
+          <button class="remove" data-remove="${p.id}" aria-label="Remove ${escapeHtml(p.name)}">×</button>
+        </div>
+      `;
+    }).join("");
+
+    $("activePlayer").innerHTML = unscored.map(p =>
+      `<option value="${p.id}" ${p.id === state.activePlayerId ? "selected" : ""}>${escapeHtml(p.name)}</option>`
+    ).join("");
+
+    document.querySelectorAll("[data-player]").forEach(b => b.addEventListener("click", () => {
+      if (b.dataset.locked === "true") unlockPlayer(b.dataset.player);
+      else selectPlayer(b.dataset.player);
+    }));
+    document.querySelectorAll("[data-remove]").forEach(b => b.addEventListener("click", e => {
+      e.stopPropagation();
+      removePlayer(b.dataset.remove);
+    }));
+  }
+
+  // Round-progress controls near the top.
+  $("remainingBadge").textContent = allScored ? "Ready!" : `${unscored.length} left`;
+  $("roundProgressTitle").textContent = allScored ? "Everyone is scored" : "Score everyone";
+  $("roundProgressText").textContent = allScored
+    ? "All scores are locked. Finish the round when you're ready."
+    : `Waiting on ${unscored.map(p => p.name).join(", ")}.`;
+
+  $("finishRound").disabled = !allScored;
+  $("finishRound").classList.toggle("ready", allScored);
+
+  if (!allScored) {
+    $("activePlayerTitle").textContent = activePlayer() ? `Scoring ${activePlayer().name}` : "Select a player";
+  }
+
+  const numberSum = state.selectedNumbers.reduce((a, b) => a + b, 0);
+  $("numberTotal").textContent = state.selectedModifiers.includes("x2") ? `${numberSum} × 2` : numberSum;
+  $("modifierTotal").textContent = modifiers
+    .filter(m => m.id !== "x2" && state.selectedModifiers.includes(m.id))
+    .reduce((sum, m) => sum + m.value, 0);
+  $("uniqueCount").textContent = `${state.selectedNumbers.length} / 7`;
+  $("roundTotal").textContent = calculateScore();
+  $("flip7Callout").classList.toggle("hidden", state.selectedNumbers.length < 7 || state.busted || state.manualMode);
+  $("undoRound").disabled = state.history.length === 0;
+
+  renderCardButtons();
+
+  $("history").innerHTML = [...state.history].reverse().map(r => `
+    <div class="round-card">
+      <strong>Round ${r.number}</strong>
+      <div class="round-scores">${r.scores.map(s => `<span>${escapeHtml(s.name)}: +${s.score}</span>`).join("")}</div>
+    </div>
+  `).join("");
+
+  persist();
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[c]));
+}
+
+$("addPlayer").addEventListener("click", addPlayer);
+$("playerName").addEventListener("keydown", e => { if (e.key === "Enter") addPlayer(); });
+$("activePlayer").addEventListener("change", e => selectPlayer(e.target.value));
+$("clearCards").addEventListener("click", () => { resetEntry(); persist(); render(); });
+$("saveScore").addEventListener("click", saveScore);
+$("nextPlayer").addEventListener("click", () => {
+  const unscored = state.players.filter(p => p.pendingScore === null);
+  if (!unscored.length) return;
+  const current = unscored.findIndex(p => p.id === state.activePlayerId);
+  const next = unscored[(current + 1 + unscored.length) % unscored.length];
+  if (next) selectPlayer(next.id);
+});
+$("finishRound").addEventListener("click", finishRound);
+$("undoRound").addEventListener("click", undoRound);
+$("newGame").addEventListener("click", newGame);
+$("closeWinner").addEventListener("click", () => $("winnerDialog").close());
+
+$("busted").addEventListener("change", e => { state.busted = e.target.checked; persist(); render(); });
+$("manualMode").addEventListener("change", e => {
+  state.manualMode = e.target.checked;
+  $("manualWrap").classList.toggle("hidden", !state.manualMode);
+  persist();
+  render();
+});
+$("manualScore").addEventListener("input", e => { state.manualScore = e.target.value; persist(); render(); });
+
+
+
+$("busted").checked = state.busted;
+$("manualMode").checked = state.manualMode;
+$("manualScore").value = state.manualScore;
+$("manualWrap").classList.toggle("hidden", !state.manualMode);
+render();
+
+</script>
+</body>
+</html>
